@@ -1,0 +1,48 @@
+name: soundmood
+description: "SoundMood - AI 音乐生成应用"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI 相关
+  cupertino_icons: ^1.0.8
+  
+  # 状态管理
+  provider: ^6.1.2
+  
+  # 网络请求
+  dio: ^5.4.0
+  
+  # 本地存储
+  shared_preferences: ^2.2.2
+  
+  # 音频播放
+  just_audio: ^0.9.36
+  
+  # 文件选择
+  image_picker: ^1.0.7
+  file_picker: ^6.1.1
+  
+  # 录音
+  record: ^5.0.4
+  path_provider: ^2.1.2
+  
+  # 权限管理
+  permission_handler: ^11.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
