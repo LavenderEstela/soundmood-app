@@ -4,11 +4,11 @@ import '../models/user.dart';
 
 class AuthProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();
-  
+
   User? _user;
   bool _isLoading = false;
   String? _error;
-  
+
   User? get user => _user;
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -47,13 +47,13 @@ class AuthProvider extends ChangeNotifier {
         username: username,
         password: password,
       );
-      
+
       // 保存 token
       await _apiService.setToken(response['access_token']);
-      
+
       // 解析用户信息
       _user = User.fromJson(response['user']);
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -79,13 +79,13 @@ class AuthProvider extends ChangeNotifier {
         email: email,
         password: password,
       );
-      
+
       // 保存 token
       await _apiService.setToken(response['access_token']);
-      
+
       // 解析用户信息
       _user = User.fromJson(response['user']);
-      
+
       _isLoading = false;
       notifyListeners();
       return true;

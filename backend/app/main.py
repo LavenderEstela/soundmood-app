@@ -1,63 +1,60 @@
 """
-FastAPI 主应用
+FastAPI 应用主文件
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from app.config import settings
 from app.database import init_db
-from app.routers import auth_router, music_router, generate_router
+from app.routers import auth_router, music_router, generate_router, user_router
 
-# 创建 FastAPI 应用
-app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.APP_VERSION,
-    description="SoundMood - AI 音乐生成平台",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc"
-)
+app = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG)
 
-# CORS 中间件（允许 Flutter 跨域访问）
+# 配置 CORS - 更宽松的配置以支持开发环境
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 生产环境应限制具体域名
+    allow_origins=["*"],  # 开发环境允许所有源，生产环境建议改回 settings.ALLOWED_ORIGINS
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
-# 挂载静态文件（音乐和图片）
+# 挂载静态文件
+settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="uploads")
 
 # 注册路由
 app.include_router(auth_router)
 app.include_router(music_router)
 app.include_router(generate_router)
+app.include_router(user_router)
+
 
 @app.on_event("startup")
 async def startup_event():
-    """
-    应用启动时初始化数据库
-    """
-    print("🚀 SoundMood 后端启动中...")
+    """应用启动时初始化数据库"""
     init_db()
-    print(f"✅ 服务运行在 http://{settings.HOST}:{settings.PORT}")
-    print(f"📖 API 文档: http://{settings.HOST}:{settings.PORT}/api/docs")
+
 
 @app.get("/")
 async def root():
-    """
-    健康检查端点
-    """
-    return {
-        "message": "SoundMood API 运行中",
-        "version": settings.APP_VERSION,
-        "docs": "/api/docs"
-    }
+    """根路径"""
+    return {"message": "Welcome to SoundMood API"}
+
 
 @app.get("/health")
 async def health_check():
-    """
-    健康检查
-    """
-    return {"status": "healthy"}
+    """健康检查"""
+    return {"status": "ok"}
+
+
+# 全局异常处理
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """全局异常处理"""
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)},
+    )
